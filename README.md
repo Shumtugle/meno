@@ -24,7 +24,7 @@ The layout rides on weights, not fixed widths — it fills a wide cell and shrin
 - Background: dimming (10–90 %), gradient direction (▲▼◀▶⤢), or full transparency
 - Second-hand colour — seven options, via stacked `AnalogClock` layers
 - Time format: auto / 24 h / 12 h
-- Language — fifteen flags on the first screen, or follow the system
+- Language — fourteen flags on the first screen, or follow the system
 
 ## Permissions
 - **Internet** — to fetch the weather; nothing else leaves the phone
@@ -39,7 +39,7 @@ src/
 ├── AndroidManifest.xml       binary manifest (decoded)
 ├── apktool.yml               build metadata (version, sdk)
 ├── smali/io/github/shumtugle/meno/    the logic, as Dalvik bytecode
-│   ├── RivaWidget.smali        the widget provider
+│   ├── MenoWidget.smali        the widget provider
 │   ├── WeatherJob.smali        weather fetch, cache, repaint poke
 │   ├── ConfigActivity.smali    the settings panel
 │   ├── AboutActivity.smali     the about screen
@@ -57,7 +57,7 @@ zip -X -0 ../clean.zip AndroidManifest.xml resources.arsc
 zip -X -r ../clean.zip classes.dex res
 cd .. && zipalign -f 4 clean.zip aligned.apk
 apksigner sign --ks your.keystore --v2-signing-enabled true --v3-signing-enabled true \
-  --min-sdk-version 26 --out meno.apk aligned.apk
+  --min-sdk-version 26 --out meno-1.9.9.apk aligned.apk
 ```
 
 ## Credits
