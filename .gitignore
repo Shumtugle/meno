@@ -1,0 +1,12 @@
+# signing key — never, under any circumstances
+*.keystore
+*.jks
+*.p12
+*.pem
+# private bridge doc (holds the key password)
+MENO_HANDOFF.md
+# build scratch
+*.tmp
+/build/
+/dist/
+src/build/

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meno — a glass clock for Android</title>
+<meta name="description" content="A glass widget card for Android: analog clock, date, weather, battery. Built entirely by AI, in conversation. No human wrote a line.">
+<meta property="og:title" content="Meno">
+<meta property="og:description" content="A glass clock for the Android home screen. Built entirely by AI, in conversation.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0b0c0e;
+    --void-2:#111318;
+    --glass:rgba(236,231,222,0.045);
+    --glass-2:rgba(236,231,222,0.06);
+    --hairline:rgba(255,255,255,0.20);
+    --hairline-soft:rgba(255,255,255,0.09);
+    --ink:#e9e6df;
+    --ink-dim:#8b9199;
+    --ink-faint:#565b63;
+    --carmine:#b8323b;
+    --carmine-lit:#d9414c;
+    --monet:#7f9dc4;
+    --bone:#ece7de;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--void);
+    color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit}
+  .wrap{max-width:940px;margin:0 auto;padding:0 28px}
+
+  .glow{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(62vw 55vh at 50% 20%, rgba(196,158,104,0.10), transparent 62%),
+      radial-gradient(42vw 40vh at 74% 8%, rgba(184,50,59,0.05), transparent 60%);
+  }
+  main{position:relative;z-index:1}
+
+  /* ---- hero ---- */
+  .hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px 72px}
+
+  .chip{
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-dim);border:1px solid var(--hairline-soft);border-radius:100px;
+    padding:5px 12px;margin-bottom:34px;background:rgba(255,255,255,0.02);
+  }
+  .chip b{color:var(--ink);font-weight:500}
+
+  /* ---- the real widget, an honest render ---- */
+  .widget-shot{
+    width:min(540px, 100%);
+    max-width:100%;
+    height:auto;display:block;margin-inline:auto;margin-bottom:42px;
+    filter:drop-shadow(0 44px 90px rgba(0,0,0,0.62));
+  }
+
+  .wordmark{
+    font-family:"Familjen Grotesk",sans-serif;font-weight:500;
+    font-size:clamp(56px,13vw,104px);line-height:.9;letter-spacing:-.02em;
+    color:var(--ink);margin-bottom:14px;
+  }
+  .tagline{font-size:clamp(16px,2.4vw,20px);color:var(--ink);max-width:30ch;margin:0 auto 8px}
+  .provenance{color:var(--ink-dim);font-size:14px;max-width:52ch;margin:0 auto 34px}
+  .provenance b{color:var(--bone);font-weight:500}
+
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:16px}
+  .btn{
+    font-family:"Familjen Grotesk",sans-serif;font-weight:500;font-size:16px;
+    padding:14px 26px;border-radius:14px;text-decoration:none;display:inline-flex;align-items:center;gap:10px;
+    transition:transform .18s ease, background .18s ease, border-color .18s ease;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--carmine);color:#fff}
+  .btn-primary:hover{background:var(--carmine-lit)}
+  .btn-ghost{color:var(--ink);border:1px solid var(--hairline)}
+  .btn-ghost:hover{border-color:var(--ink-dim);background:rgba(255,255,255,0.03)}
+  .meta{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink-faint);letter-spacing:.03em}
+
+  /* ---- sections ---- */
+  section.block{padding:72px 0;border-top:1px solid var(--hairline-soft)}
+  .eyebrow{
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--carmine);margin-bottom:18px;
+  }
+  h2{font-family:"Familjen Grotesk",sans-serif;font-weight:500;font-size:clamp(26px,4vw,36px);letter-spacing:-.01em;margin-bottom:32px;color:var(--ink)}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--hairline-soft);border:1px solid var(--hairline-soft);border-radius:16px;overflow:hidden}
+  .cell{background:var(--void);padding:26px 24px}
+  .cell h3{font-family:"Familjen Grotesk",sans-serif;font-weight:500;font-size:18px;color:var(--ink);margin-bottom:7px}
+  .cell p{color:var(--ink-dim);font-size:14.5px}
+
+  .taps{display:flex;flex-direction:column;gap:0}
+  .tap{display:flex;justify-content:space-between;align-items:baseline;gap:20px;padding:16px 2px;border-bottom:1px solid var(--hairline-soft)}
+  .tap:last-child{border-bottom:none}
+  .tap .zone{font-family:"Familjen Grotesk",sans-serif;font-weight:500;font-size:17px;color:var(--ink)}
+  .tap .act{color:var(--ink-dim);font-size:14px;text-align:right;font-family:"JetBrains Mono",monospace}
+
+  .made p{color:var(--ink-dim);max-width:60ch;margin-bottom:22px;font-size:15.5px}
+  .made p b{color:var(--bone);font-weight:500}
+  pre{
+    background:var(--void-2);border:1px solid var(--hairline-soft);border-radius:14px;
+    padding:20px 22px;overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.75;color:var(--ink-dim);
+  }
+  pre .c{color:var(--ink-faint)}
+  pre .k{color:var(--monet)}
+
+  .perms{display:flex;flex-direction:column;gap:14px;max-width:60ch}
+  .perm{display:flex;gap:14px;align-items:baseline}
+  .perm .n{font-family:"Familjen Grotesk",sans-serif;font-weight:500;color:var(--ink);min-width:150px}
+  .perm .d{color:var(--ink-dim);font-size:14.5px}
+
+  footer{border-top:1px solid var(--hairline-soft);padding:44px 0 60px}
+  .foot{display:flex;flex-wrap:wrap;gap:8px 26px;align-items:center;color:var(--ink-faint);font-size:13px;font-family:"JetBrains Mono",monospace}
+  .foot a{color:var(--ink-dim);text-decoration:none;transition:color .15s}
+  .foot a:hover{color:var(--ink)}
+  .foot .sep{color:var(--ink-faint)}
+
+  @media(max-width:640px){
+    .grid{grid-template-columns:1fr}
+    section.block{padding:56px 0}
+    .tap .act{max-width:48%}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .hand{transition:none}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<main>
+  <section class="hero">
+    <span class="chip">Meno · <b>v1.9.9</b> · Android widget</span>
+
+    <img class="widget-shot" src="./widget.png" alt="The Meno widget: a glass clock card showing analog time, digital time, date, weather and battery." width="1096" height="687">
+
+    <h1 class="wordmark">Meno</h1>
+    <p class="tagline">A glass clock for the Android home screen.</p>
+    <p class="provenance">Every layout, every drawable, every byte of logic was generated by AI — <b>Claude Opus 4.8</b> — through plain conversation. No human wrote a line. No Android Studio, no Gradle.</p>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="./meno-1.9.9.apk" download>Download the APK</a>
+      <a class="btn btn-ghost" href="https://github.com/Shumtugle/meno">View source</a>
+    </div>
+    <p class="meta">Android 8+ · ~100 KB · sideload</p>
+  </section>
+
+  <div class="wrap">
+    <section class="block">
+      <p class="eyebrow">On the card</p>
+      <h2>Four things, no clutter</h2>
+      <div class="grid">
+        <div class="cell"><h3>Analog clock</h3><p>The hands are moved by Android itself, so the widget costs no battery.</p></div>
+        <div class="cell"><h3>Date</h3><p>Formatted in the app's own language, not the phone's.</p></div>
+        <div class="cell"><h3>Weather</h3><p>Sky icon and temperature from Open-Meteo, by your location, refreshed in the background.</p></div>
+        <div class="cell"><h3>Battery</h3><p>Read locally. No permission asked, none needed.</p></div>
+      </div>
+    </section>
+
+    <section class="block">
+      <p class="eyebrow">Tap zones</p>
+      <h2>Every corner goes somewhere</h2>
+      <div class="taps">
+        <div class="tap"><span class="zone">Weather</span><span class="act">web weather search</span></div>
+        <div class="tap"><span class="zone">Clock</span><span class="act">system alarms</span></div>
+        <div class="tap"><span class="zone">Date</span><span class="act">calendar</span></div>
+        <div class="tap"><span class="zone">Battery</span><span class="act">battery usage</span></div>
+      </div>
+      <p class="made" style="margin-top:22px">Any of the five zones can be re-pointed to any app you like through the system picker, and reset back with one tap.</p>
+    </section>
+
+    <section class="block">
+      <p class="eyebrow">Make it yours</p>
+      <h2>A settings panel, not a wall of toggles</h2>
+      <div class="grid">
+        <div class="cell"><h3>Background</h3><p>Dimming from ten to ninety percent, a gradient in five directions, or full transparency.</p></div>
+        <div class="cell"><h3>Second hand</h3><p>Seven colours — bone, graphite, Monet, carmine, steel, brass, warm bone.</p></div>
+        <div class="cell"><h3>Time format</h3><p>Auto, 24-hour, or 12-hour.</p></div>
+        <div class="cell"><h3>Language</h3><p>Fifteen flags on the first screen, or follow the system.</p></div>
+      </div>
+    </section>
+
+    <section class="block made">
+      <p class="eyebrow">How it's made</p>
+      <h2>Hand-authored bytecode, no build system</h2>
+      <p>This is <b>not</b> a Gradle project. There is no Java source. The logic lives as <b>smali</b> — Dalvik bytecode written by hand — compiled with <span style="font-family:'JetBrains Mono',monospace;font-size:.9em">apktool</span> and <span style="font-family:'JetBrains Mono',monospace;font-size:.9em">aapt</span>, then signed with <span style="font-family:'JetBrains Mono',monospace;font-size:.9em">apksigner</span>. The whole thing was assembled on a phone, in conversation.</p>
+<pre><span class="c"># build, then repack with resources.arsc stored (Android 11+)</span>
+<span class="k">apktool</span> b src -o meno.apk
+<span class="k">zip</span> -X -0 meno.apk AndroidManifest.xml resources.arsc
+<span class="k">zip</span> -X -r meno.apk classes.dex res
+<span class="k">apksigner</span> sign --ks shumtugle.keystore meno.apk</pre>
+      <p style="margin-top:22px">The full source tree, the build notes, and the scars are in the repository.</p>
+    </section>
+
+    <section class="block">
+      <p class="eyebrow">Permissions</p>
+      <h2>Two, and one is optional</h2>
+      <div class="perms">
+        <div class="perm"><span class="n">Internet</span><span class="d">to fetch the weather — nothing else leaves the phone.</span></div>
+        <div class="perm"><span class="n">Location (coarse)</span><span class="d">weather where you are. Optional; turn it off and the sky just goes quiet.</span></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="wrap foot">
+      <a href="https://github.com/Shumtugle/meno">Source</a><span class="sep">/</span>
+      <a href="./meno-1.9.9.apk" download>Download</a><span class="sep">/</span>
+      <a href="https://open-meteo.com">Open-Meteo</a><span class="sep">/</span>
+      <a href="https://claude.ai">Claude Opus 4.8</a><span class="sep">/</span>
+      <span>Shumtugle · Finland</span>
+    </div>
+  </footer>
+</main>
+
+<!-- the hero is a static render of the real widget; nothing to animate -->
+</body>
+</html>
