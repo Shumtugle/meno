@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="analog" />
+    <item type="id" name="time" />
+    <item type="id" name="date" />
+    <item type="id" name="battery" />
+    <item type="id" name="weather" />
+    <item type="id" name="root" />
+    <item type="id" name="weather_icon" />
+    <item type="id" name="weather_pill" />
+    <item type="id" name="clock_1" />
+    <item type="id" name="clock_2" />
+    <item type="id" name="clock_3" />
+    <item type="id" name="clock_4" />
+    <item type="id" name="clock_5" />
+    <item type="id" name="clock_ring" />
+    <item type="id" name="clock_6" />
+    <item type="id" name="frame" />
+    <item type="id" name="refresh" />
+    <item type="id" name="ver" />
+</resources>
