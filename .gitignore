@@ -3,8 +3,6 @@
 *.jks
 *.p12
 *.pem
-# private bridge doc (holds the key password)
-MENO_HANDOFF.md
 # build scratch
 *.tmp
 /build/
