@@ -7,10 +7,11 @@
 <meta name="description" content="A glass widget card for Android: analog clock, date, weather, battery. Built entirely by AI, in conversation. No human wrote a line.">
 <meta property="og:title" content="Meno">
 <meta property="og:description" content="A glass clock for the Android home screen. Built entirely by AI, in conversation.">
+<meta property="og:image" content="./widget.png">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --void:#0b0c0e;
@@ -26,6 +27,16 @@
     --carmine-lit:#d9414c;
     --monet:#7f9dc4;
     --bone:#ece7de;
+
+    /* the widget's own palette, lifted from res/drawable */
+    --w-text:#f5f1e8;
+    --w-scrim:rgba(14,16,20,0.10);
+    --w-scrim-inner:rgba(14,16,20,0.08);
+    --w-edge:rgba(255,255,255,0.24);
+    --w-mark:#aeb8c8;
+    --w-hour:#c9bfaf;
+    --w-minute:#e8e2d8;
+    --w-second:#9e2b3a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -58,13 +69,90 @@
   }
   .chip b{color:var(--ink);font-weight:500}
 
-  /* ---- the real widget, an honest render ---- */
-  .widget-shot{
-    width:min(540px, 100%);
-    max-width:100%;
-    height:auto;display:block;margin-inline:auto;margin-bottom:42px;
-    filter:drop-shadow(0 44px 90px rgba(0,0,0,0.62));
+  /* ==========================================================
+     THE WIDGET, RUNNING — not a screenshot.
+     Every size below is a fraction of the card's own height:
+     --u is one hundredth of it, written by JS from the width.
+     Proportions measured off the real widget on a home screen.
+     ========================================================== */
+  .stage{
+    width:min(600px,100%);
+    margin:0 auto 20px;
+    padding:12px;
+    border-radius:26px;
+    background:linear-gradient(132deg,#241d16 0%,#2e2519 54%,#3a2f20 100%);
+    box-shadow:0 44px 90px rgba(0,0,0,0.62);
   }
+  .widget{
+    --u:1px;
+    width:100%;
+    aspect-ratio:1087 / 376;
+    display:flex;
+    align-items:center;
+    padding:0 calc(7.45 * var(--u));
+    border-radius:calc(13.3 * var(--u));
+    border:max(1px, calc(0.37 * var(--u))) solid var(--w-edge);
+    background:var(--w-scrim);
+    font-family:"Roboto","Inter",system-ui,sans-serif;
+    color:var(--w-text);
+    line-height:1;
+  }
+  .w-clock{
+    flex:1 1 0;min-width:0;height:100%;
+    display:flex;align-items:center;justify-content:center;
+    overflow:visible;
+  }
+  .w-clock svg{height:103%;width:auto;overflow:visible}
+
+  .w-right{
+    flex:1.1 1 0;min-width:0;height:100%;
+    margin-left:calc(6.65 * var(--u));
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .w-inner{
+    height:calc(56.6 * var(--u));
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:calc(3 * var(--u));
+    border-radius:calc(14.6 * var(--u));
+    border:max(1px, calc(0.37 * var(--u))) solid var(--w-edge);
+    background:var(--w-scrim-inner);
+  }
+  .w-time{font-weight:300;font-size:calc(29.5 * var(--u));font-variant-numeric:tabular-nums;white-space:nowrap}
+  .w-date{font-weight:500;font-size:calc(12.4 * var(--u));white-space:nowrap}
+
+  .w-pills{display:flex;align-items:center;margin-top:calc(8.5 * var(--u))}
+  .w-pill{
+    flex:1 1 0;min-width:0;height:calc(34 * var(--u));
+    display:flex;align-items:center;justify-content:center;
+    padding-left:calc(17.8 * var(--u));           /* the hidden refresh zone */
+    gap:calc(8.8 * var(--u));
+    border-radius:calc(17 * var(--u));
+    border:max(1px, calc(0.37 * var(--u))) solid var(--w-edge);
+    background:var(--w-scrim-inner);
+    color:inherit;font:inherit;line-height:1;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transition:background .18s ease;
+  }
+  .w-pill:hover{background:rgba(14,16,20,0.17)}
+  .w-pill svg{width:calc(16 * var(--u));height:calc(16 * var(--u));flex:none;display:block}
+  .w-temp{font-size:calc(12.4 * var(--u));font-variant-numeric:tabular-nums}
+  .w-batt{
+    width:calc(34 * var(--u));height:calc(34 * var(--u));flex:none;
+    margin-left:calc(7.45 * var(--u));
+    display:grid;place-items:center;border-radius:50%;
+    font-size:calc(11.6 * var(--u));font-variant-numeric:tabular-nums;
+    border:max(1px, calc(0.37 * var(--u))) solid var(--w-edge);
+    background:var(--w-scrim-inner);
+  }
+  .w-pills.no-batt .w-batt{display:none}
+
+  .hand{transition:transform .1s cubic-bezier(.2,.9,.3,1.25)}
+
+  .stage-note{
+    font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.05em;
+    color:var(--ink-faint);margin:0 auto 40px;
+  }
+  .stage-note b{color:var(--ink-dim);font-weight:400}
 
   .wordmark{
     font-family:"Familjen Grotesk",sans-serif;font-weight:500;
@@ -145,7 +233,56 @@
   <section class="hero">
     <span class="chip">Meno · <b>v1.9.12</b> · Android widget</span>
 
-    <img class="widget-shot" src="./widget.png" alt="The Meno widget: a glass clock card showing analog time, digital time, date, weather and battery." width="1096" height="469">
+    <div class="stage">
+      <div class="widget" id="widget" role="img"
+           aria-label="The Meno widget, running: analog clock, digital time, date, weather and battery on a glass card.">
+        <div class="w-clock">
+          <!-- hands and marks are the drawables' own geometry, 600 x 600, centre 300,300 -->
+          <svg viewBox="0 0 600 600" aria-hidden="true">
+            <circle cx="300" cy="300" r="269" fill="none"
+                    stroke="rgba(255,255,255,0.11)" stroke-width="2.2"/>
+            <g id="dialMarks" fill="var(--w-mark)" stroke="var(--w-mark)"
+               stroke-linecap="round" opacity="0.88"></g>
+            <g id="handHour" class="hand" transform="rotate(0 300 300)">
+              <polygon points="285.5,309 292,157 308,157 314.5,309"
+                       fill="var(--w-hour)" stroke="var(--w-hour)"
+                       stroke-width="14" stroke-linejoin="round"/>
+            </g>
+            <g id="handMinute" class="hand" transform="rotate(0 300 300)">
+              <polygon points="292.5,310 295.5,91 304.5,91 307.5,310"
+                       fill="var(--w-minute)" stroke="var(--w-minute)"
+                       stroke-width="12" stroke-linejoin="round"/>
+            </g>
+            <g id="handSecond" class="hand" transform="rotate(0 300 300)">
+              <line x1="300" y1="352" x2="300" y2="53"
+                    stroke="var(--w-second)" stroke-width="9" stroke-linecap="round"/>
+            </g>
+            <circle cx="300" cy="300" r="15.5" fill="var(--w-second)"/>
+          </svg>
+        </div>
+
+        <div class="w-right">
+          <div class="w-inner">
+            <div class="w-time" id="wTime">--:--</div>
+            <div class="w-date" id="wDate">&hellip;</div>
+          </div>
+          <div class="w-pills" id="wPills">
+            <button class="w-pill" id="wPill" type="button" title="Refresh the weather">
+              <span id="wIcon"></span>
+              <span class="w-temp" id="wTemp">&hellip;</span>
+            </button>
+            <div class="w-batt" id="wBatt">&hellip;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="stage-note">live · weather by <b>Open-Meteo</b> · tap the pill to refresh</p>
+
+    <noscript>
+      <img src="./widget.png" alt="The Meno widget: a glass clock card showing analog time, digital time, date, weather and battery."
+           width="1096" height="469"
+           style="width:min(576px,100%);height:auto;display:block;margin:0 auto 40px">
+    </noscript>
 
     <h1 class="wordmark">Meno</h1>
     <p class="tagline">A glass clock for the Android home screen.</p>
@@ -202,7 +339,7 @@
 <span class="k">zip</span> -X -0 meno.apk AndroidManifest.xml resources.arsc
 <span class="k">zip</span> -X -r meno.apk classes.dex res
 <span class="k">apksigner</span> sign --ks shumtugle.keystore meno.apk</pre>
-      <p style="margin-top:22px">The full source tree, the build notes, and the scars are in the repository.</p>
+      <p style="margin-top:22px">The clock at the top of this page is the same geometry, re-drawn as SVG: the hands and the dial marks carry the exact coordinates of the drawables inside the APK.</p>
     </section>
 
     <section class="block">
@@ -226,6 +363,191 @@
   </footer>
 </main>
 
-<!-- the hero is a static render of the real widget; nothing to animate -->
+<script>
+(function () {
+  "use strict";
+
+  var SVG = "http://www.w3.org/2000/svg";
+  var widget = document.getElementById("widget");
+  var marks  = document.getElementById("dialMarks");
+  var hHour  = document.getElementById("handHour");
+  var hMin   = document.getElementById("handMinute");
+  var hSec   = document.getElementById("handSecond");
+  var elTime = document.getElementById("wTime");
+  var elDate = document.getElementById("wDate");
+  var elTemp = document.getElementById("wTemp");
+  var elIcon = document.getElementById("wIcon");
+  var elBatt = document.getElementById("wBatt");
+  var pills  = document.getElementById("wPills");
+  var pill   = document.getElementById("wPill");
+
+  /* --u = one hundredth of the card height; the card is 289.1 u wide */
+  function fit() {
+    var w = widget.clientWidth;
+    if (w) widget.style.setProperty("--u", (w / 289.1) + "px");
+  }
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(widget);
+  else window.addEventListener("resize", fit);
+
+  /* dial: bars at 12/3/6/9, dots on the rest — res/drawable/dial.png */
+  for (var i = 0; i < 12; i++) {
+    var a = i * 30 * Math.PI / 180, sin = Math.sin(a), cos = Math.cos(a), el;
+    if (i % 3 === 0) {
+      el = document.createElementNS(SVG, "line");
+      el.setAttribute("x1", (300 + 219 * sin).toFixed(2));
+      el.setAttribute("y1", (300 - 219 * cos).toFixed(2));
+      el.setAttribute("x2", (300 + 245 * sin).toFixed(2));
+      el.setAttribute("y2", (300 - 245 * cos).toFixed(2));
+      el.setAttribute("stroke-width", 10);
+    } else {
+      el = document.createElementNS(SVG, "circle");
+      el.setAttribute("cx", (300 + 232.5 * sin).toFixed(2));
+      el.setAttribute("cy", (300 - 232.5 * cos).toFixed(2));
+      el.setAttribute("r", 8.5);
+      el.setAttribute("stroke", "none");
+    }
+    marks.appendChild(el);
+  }
+
+  /* weather glyphs, redrawn from res/drawable/ic_wx_*.png */
+  var CLOUD = "M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 " +
+              "2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 " +
+              "0-2.64-2.05-4.78-4.65-4.96z";
+
+  function rays(cx, cy, inner, outer, from, count) {
+    var out = "";
+    for (var i = 0; i < count; i++) {
+      var a = (from + i * (360 / count)) * Math.PI / 180;
+      out += '<line x1="' + (cx + inner * Math.cos(a)).toFixed(2) +
+             '" y1="' + (cy + inner * Math.sin(a)).toFixed(2) +
+             '" x2="' + (cx + outer * Math.cos(a)).toFixed(2) +
+             '" y2="' + (cy + outer * Math.sin(a)).toFixed(2) + '"/>';
+    }
+    return out;
+  }
+  function dot(x, y) {
+    return '<circle cx="' + x + '" cy="' + y + '" r="1" stroke="none" fill="currentColor"/>';
+  }
+
+  var GLYPH = {
+    sun: '<circle cx="12" cy="12" r="4.6"/>' + rays(12, 12, 7.7, 10.7, 0, 8),
+    pcloud: '<circle cx="15.6" cy="7.4" r="3.3"/>' + rays(15.6, 7.4, 5.5, 7.7, -108, 5) +
+            '<g transform="translate(-1.6 5.0) scale(0.76)"><path d="' + CLOUD + '"/></g>',
+    cloud:  '<g transform="translate(0 1.2) scale(0.96)"><path d="' + CLOUD + '"/></g>',
+    fog:    '<g transform="translate(1.3 -1.6) scale(0.88)"><path d="' + CLOUD + '"/></g>' +
+            '<line x1="5.8" y1="18.9" x2="17.2" y2="18.9"/>' +
+            '<line x1="8.6" y1="21.7" x2="15.4" y2="21.7"/>',
+    rain:   '<g transform="translate(1.3 -1.9) scale(0.88)"><path d="' + CLOUD + '"/></g>' +
+            '<line x1="7.7" y1="17.7" x2="6.3" y2="21.5"/>' +
+            '<line x1="12.0" y1="17.7" x2="10.6" y2="21.5"/>' +
+            '<line x1="16.3" y1="17.7" x2="14.9" y2="21.5"/>',
+    snow:   '<g transform="translate(1.3 -1.9) scale(0.88)"><path d="' + CLOUD + '"/></g>' +
+            dot(7.5, 18.5) + dot(12, 18.5) + dot(16.5, 18.5) +
+            dot(9.8, 21.4) + dot(14.2, 21.4),
+    storm:  '<g transform="translate(1.7 -2.4) scale(0.84)"><path d="' + CLOUD + '"/></g>' +
+            '<path d="M10.5 16.3 8.3 20.0h2.1l-1.5 3.1"/>' +
+            '<path d="M15.7 16.3 13.5 20.0h2.1l-1.5 3.1"/>'
+  };
+
+  function setGlyph(name) {
+    elIcon.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" ' +
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      (GLYPH[name] || GLYPH.cloud) + '</svg>';
+  }
+
+  /* the thresholds of WeatherJob.codeToIcon, kept in step */
+  function codeToGlyph(c) {
+    if (c === 0) return "sun";
+    if (c <= 2)  return "pcloud";
+    if (c === 3) return "cloud";
+    if (c <= 48) return "fog";
+    if (c <= 67) return "rain";
+    if (c <= 77) return "snow";
+    if (c <= 82) return "rain";
+    if (c <= 86) return "snow";
+    return "storm";
+  }
+
+  /* ---- clock ---- */
+  var hour12 = false;
+  try { hour12 = !!new Intl.DateTimeFormat().resolvedOptions().hour12; } catch (e) {}
+
+  var dateFmt = null;
+  try {
+    dateFmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "long" });
+  } catch (e) {}
+
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  var lastSec = -1, lastDay = -1;
+
+  function frame() {
+    var d = new Date(), s = d.getSeconds(), m = d.getMinutes(), h = d.getHours();
+    if (s !== lastSec) {
+      lastSec = s;
+      hSec.setAttribute("transform",  "rotate(" + (s * 6) + " 300 300)");
+      hMin.setAttribute("transform",  "rotate(" + ((m + s / 60) * 6) + " 300 300)");
+      hHour.setAttribute("transform", "rotate(" + (((h % 12) + m / 60) * 30) + " 300 300)");
+      elTime.textContent = pad(hour12 ? (h % 12 === 0 ? 12 : h % 12) : h) + ":" + pad(m);
+      if (d.getDate() !== lastDay) {
+        lastDay = d.getDate();
+        /* the widget formats as EEE, d MMMM */
+        elDate.textContent = dateFmt
+          ? dateFmt.format(d).replace(/^(\S+)\s/, "$1, ")
+          : d.toDateString();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---- weather: the app's endpoint, and the app's Helsinki fallback ---- */
+  var HOME = { lat: 60.17, lon: 24.94 };
+
+  function loadWeather(pt) {
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=" + pt.lat +
+          "&longitude=" + pt.lon + "&current=temperature_2m,weather_code")
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        if (!j || !j.current) throw 0;
+        elTemp.textContent = Math.round(j.current.temperature_2m) + "\u00B0";
+        setGlyph(codeToGlyph(j.current.weather_code));
+      })
+      .catch(function () { elTemp.textContent = "\u2014"; setGlyph("cloud"); });
+  }
+
+  setGlyph("cloud");
+  loadWeather(HOME);
+
+  var asked = false;
+  pill.addEventListener("click", function () {
+    if (!asked && navigator.geolocation) {
+      asked = true;
+      navigator.geolocation.getCurrentPosition(
+        function (p) {
+          loadWeather({ lat: p.coords.latitude.toFixed(2), lon: p.coords.longitude.toFixed(2) });
+        },
+        function () { loadWeather(HOME); },
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+      );
+    } else {
+      loadWeather(HOME);
+    }
+  });
+
+  /* ---- battery: real where the browser allows it, gone where it doesn't ---- */
+  if (navigator.getBattery) {
+    navigator.getBattery().then(function (b) {
+      var paint = function () { elBatt.textContent = Math.round(b.level * 100) + "%"; };
+      paint();
+      b.addEventListener("levelchange", paint);
+    }).catch(function () { pills.classList.add("no-batt"); });
+  } else {
+    pills.classList.add("no-batt");
+  }
+})();
+</script>
 </body>
 </html>
