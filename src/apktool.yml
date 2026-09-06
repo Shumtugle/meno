@@ -1,0 +1,22 @@
+!!brut.androlib.meta.MetaInfo
+apkFileName: meno.apk
+compressionType: false
+doNotCompress: null
+isFrameworkApk: false
+packageInfo:
+  forcedPackageId: '127'
+  renameManifestPackage: null
+sdkInfo:
+  minSdkVersion: '26'
+  targetSdkVersion: '34'
+sharedLibrary: false
+sparseResources: true
+unknownFiles: {}
+usesFramework:
+  ids:
+  - 1
+  tag: null
+version: 2.7.0-dirty
+versionInfo:
+  versionCode: '20'
+  versionName: 1.9.12

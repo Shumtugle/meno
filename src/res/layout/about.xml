@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:padding="24.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <Button android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/cfg_open" android:onClick="openSettings" />
+        <TextView android:textSize="15.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24.0dip" android:text="@string/cfg_lang" android:alpha="0.7" />
+        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="8.0dip">
+            <Button android:tag="auto" android:text="🌐" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="en" android:text="🇬🇧" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="ru" android:text="🇷🇺" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="fi" android:text="🇫🇮" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="es" android:text="🇪🇸" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <Button android:tag="ar" android:text="🇸🇦" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="sv" android:text="🇸🇪" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="fr" android:text="🇫🇷" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="ur" android:text="🇵🇰" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="zh" android:text="🇨🇳" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <Button android:tag="de" android:text="🇩🇪" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="uk" android:text="🇺🇦" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="iw" android:text="🇮🇱" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="ky" android:text="🇰🇬" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:tag="kk" android:text="🇰🇿" android:onClick="onLang" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" />
+        </LinearLayout>
+        <TextView android:textSize="26.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="32.0dip" android:text="@string/about_title" android:fontFamily="sans-serif-light" />
+        <TextView android:textSize="16.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16.0dip" android:text="@string/about_body" android:lineSpacingExtra="4.0dip" android:autoLink="web" android:textColorLink="#ff9ecbff" />
+        <TextView android:textSize="14.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20.0dip" android:text="github.com/Shumtugle" android:autoLink="web" android:textColorLink="#ff9ecbff" />
+        <TextView android:textSize="13.0sp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20.0dip" android:text="@string/about_footer" android:alpha="0.6" />
+        <TextView android:textSize="13.0sp" android:id="@id/ver" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:alpha="0.6" />
+    </LinearLayout>
+</ScrollView>
